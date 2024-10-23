@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Reference</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons for UI improvements -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Added library for exporting to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-section input, .form-section select, .form-section textarea {
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        label {
+            font-weight: 500;
+            color: #333;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .table-section {
+            margin-top: 20px;
+        }
+        table th, table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+        }
+        .table td button {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        .table td button:hover {
+            background-color: #218838;
+        }
+        .icons-section {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .icons-section i {
+            font-size: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            color: #333;
+        }
+        .icons-section i:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center mb-4">ADD VIP Reference</h2>
+
+        <!-- Icons for Print, Save, PDF -->
+        <div class="icons-section">
+            <i class="fas fa-print" onclick="window.print()" title="Print"></i>
+            <i class="fas fa-file-pdf" onclick="exportToPDF()" title="Export as PDF"></i>
+            <i class="fas fa-save" onclick="saveData()" title="Save"></i>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="select">Select</label>
+                    <select id="select" class="form-control">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="name">Name/Constituency</label>
+                    <input type="text" id="name" class="form-control" placeholder="Name/Constituency">
+                </div>
+                <div class="col-md-3">
+                    <label for="letterNo">Letter No</label>
+                    <input type="text" id="letterNo" class="form-control" placeholder="Letter No">
+                </div>
+                <div class="col-md-3">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="addressedTo">Addressed To</label>
+                    <input type="text" id="addressedTo" class="form-control" placeholder="Addressed To">
+                </div>
+                <div class="col-md-3">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" class="form-control" placeholder="Subject">
+                </div>
+                <div class="col-md-3">
+                    <label for="remark">Remark</label>
+                    <textarea id="remark" class="form-control" rows="1" placeholder="Remark"></textarea>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button id="submitBtn" class="btn submit-btn w-100">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section">
+            <h5>Total Records: <span id="recordCount">0</span></h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>S. No.</th>
+                            <th>ID</th>
+                            <th>Letter Date</th>
+                            <th>From</th>
+                            <th>Subject</th>
+                            <th>Addressed To</th>
+                            <th>Letter</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTable">
+                        <!-- Dynamic Records will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 and jQuery (for dynamic handling) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dynamic Script -->
+    <script>
+        $(document).ready(function(){
+            let recordCount = 0;
+
+            // Submit Button Action
+            $('#submitBtn').click(function(){
+                const name = $('#name').val();
+                const letterNo = $('#letterNo').val();
+                const date = $('#date').val();
+                const addressedTo = $('#addressedTo').val();
+                const subject = $('#subject').val();
+                const remark = $('#remark').val();
+
+                if(name && letterNo && date && addressedTo && subject) {
+                    recordCount++;
+                    $('#recordsTable').append(`
+                        <tr>
+                            <td>${recordCount}</td>
+                            <td>${letterNo}<br>${date}</td>
+                            <td>${date}</td>
+                            <td>${name}</td>
+                            <td>${subject}</td>
+                            <td>${addressedTo}</td>
+                            <td><button class="upload-btn">Upload</button></td>
+                        </tr>
+                    `);
+                    $('#recordCount').text(recordCount);
+
+                    // Clear Form
+                    $('#name').val('');
+                    $('#letterNo').val('');
+                    $('#date').val('');
+                    $('#addressedTo').val('');
+                    $('#subject').val('');
+                    $('#remark').val('');
+                } else {
+                    alert("Please fill in all the required fields.");
+                }
+            });
+
+            // Upload Button Action (for now, it just gives an alert)
+            $(document).on('click', '.upload-btn', function(){
+                alert('Upload feature is under development.');
+            });
+        });
+
+        // Export to PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("VIP Reference Report", 14, 10);
+            doc.autoTable({ 
+                html: '#recordsTable',
+                startY: 20
+            });
+            doc.save('VIP-Reference-Report.pdf');
+        }
+
+        // Save Data to CSV or JSON
+        function saveData() {
+            let records = [];
+            $('#recordsTable tr').each(function() {
+                const row = $(this);
+                const record = {
+                    id: row.find('td').eq(1).text(),
+                    date: row.find('td').eq(2).text(),
+                    name: row.find('td').eq(3).text(),
+                    subject: row.find('td').eq(4).text(),
+                    addressedTo: row.find('td').eq(5).text()
+                };
+                records.push(record);
+            });
+
+            const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'VIP-Reference-Data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+</html>
